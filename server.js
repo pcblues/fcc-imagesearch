@@ -45,9 +45,14 @@ app.get("/api/imagesearch/:term", function (request, response) {
 
     db.close()
     
-    var searchResults = searcher.doSearch(doTerm,doOffset)
     
-    response.send(JSON.stringify(searchResults))
+    
+        
+    searcher.doSearch(doTerm,doOffset,function(results) {
+      console.log(results)
+      response.send(results)
+    
+    })
     })
 
 })
@@ -66,7 +71,7 @@ app.get("/api/latest/imagesearch",function (request,response) {
     
     coll.find({},{fields:{_id:0}}).sort({_id:-1}).limit(recLimit).toArray(function(err,docs){
           if (err) {response.send(JSON.stringify(err))}
-          response.send(JSON.stringify(docs))
+          response.send(docs)
           db.close()
     
         })  

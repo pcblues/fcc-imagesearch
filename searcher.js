@@ -6,7 +6,7 @@ let https=require('https')
 let subscriptionKey = process.env.IMAGEKEY
 
 
-exports.doSearch= function(term,offset) {
+exports.doSearch= function(term,offset,callback) {
    var results=[]
     // Verify the endpoint URI.  At this writing, only one endpoint is used for Bing
     // search APIs.  In the future, regional endpoints may be available.  If you
@@ -26,30 +26,37 @@ exports.doSearch= function(term,offset) {
                 // header keys are lower-cased by Node.js
                 if (header.startsWith("bingapis-") || header.startsWith("x-msedge-"))
                      console.log(header + ": " + response.headers[header]);
-            var rawResults = JSON.parse(body)
+            var rawResults = JSON.parse(body).value
             
             for (var c=0;c<rawResults.length;c++) {
               var newResult={url:rawResults[c].contentUrl,
                             snippet:rawResults[c].name,
                             thumbnail:rawResults[c].thumbnailUrl,
                             context:rawResults[c].hostPageUrl}
+              
               results.push(newResult)
+              
             }
-        console.log(results)
-          return results
+          callback(results)
+        
         });
         response.on('error', function (e) {
             console.log('Error: ' + e.message);
         });
     };
 
-    let bing_image_search = function (search) {
+    let bing_image_search = function (term,offset) {
       console.log('Searching images for: ' + term);
+      var offsetStr=""
+      if (offset!==undefined) {
+        offsetStr = '&offset='+offset
+      }
+        
       let request_params = {
             method : 'GET',
             hostname : host,
-            path : path + '?q=' + encodeURIComponent(search)+
-        '&offset='+offset,
+            path : path + '?q=' + encodeURIComponent(term)+
+            offsetStr,
             headers : {
                 'Ocp-Apim-Subscription-Key' : subscriptionKey,
             }
@@ -57,10 +64,13 @@ exports.doSearch= function(term,offset) {
 
         let req = https.request(request_params, response_handler);
         req.end();
+      
     }
 
     if (subscriptionKey.length === 32) {
         bing_image_search(term,offset);
+        
+      
     } else {
         console.log('Invalid Bing Search API subscription key!');
         console.log('Please paste yours into the source code.');
