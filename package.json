@@ -10,10 +10,11 @@
     "start": "node server.js"
   },
   "dependencies": {
-    "express": "^4.16.3"
+    "express": "^4.16.3",
+    "mongodb": "^3.1.0-beta4"
   },
   "engines": {
-    "node": "8.x"
+    "node": "6.x"
   },
   "repository": {
     "url": "https://glitch.com/edit/#!/hello-express"
